@@ -1,0 +1,14 @@
+{
+  "name": "context-drop-local",
+  "description": "Local marketplace for developing Context Drop.",
+  "owner": {
+    "name": "gordon2tone"
+  },
+  "plugins": [
+    {
+      "name": "context-drop",
+      "source": "./",
+      "description": "Send screenshots, text, links, and files into a specific chat."
+    }
+  ]
+}

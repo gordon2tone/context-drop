@@ -1,0 +1,19 @@
+{
+  "name": "context-drop",
+  "version": "0.1.0",
+  "description": "Open a local browser page from a chat and send screenshots, text, links, and files into that same chat.",
+  "author": { "name": "gordon2tone" },
+  "license": "MIT",
+  "keywords": ["context", "screenshots", "clipboard"],
+  "skills": "./skills/",
+  "mcpServers": "./codex.mcp.json",
+  "interface": {
+    "displayName": "Context Drop",
+    "shortDescription": "Drop screenshots, text, and links into this chat",
+    "longDescription": "Opens a local browser page bound to this Codex thread. Staged material is delivered into the same thread with codex queue when you press Send.",
+    "developerName": "gordon2tone",
+    "category": "Productivity",
+    "capabilities": ["Interactive", "Local MCP server"],
+    "defaultPrompt": ["Open Context Drop for this chat."]
+  }
+}

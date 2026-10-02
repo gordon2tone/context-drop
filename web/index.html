@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Context Drop</title>
+<link rel="icon" href="data:,">
+<style>
+  :root {
+    --bg: #f6f5f2; --panel: #ffffff; --ink: #1d1d1b; --muted: #5d5b55; --line: #dcd9d1;
+    --accent: #1f5f8b; --accent-ink: #ffffff; --ok: #276b3a; --warn: #8a5a00; --bad: #a3271f; --focus: #f0a400;
+    font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #181816; --panel: #22221f; --ink: #ecebe6; --muted: #a8a59c; --line: #3a3934; --accent: #6fb2e0; --accent-ink: #0d1b24; --ok: #7cc690; --warn: #e5b45a; --bad: #f08a80; }
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--bg); color: var(--ink); }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .skip { position: absolute; left: -9999px; } .skip:focus { left: 8px; top: 8px; background: var(--panel); padding: 6px 10px; z-index: 9; }
+  .app { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+  nav.side { border-right: 1px solid var(--line); padding: 16px 12px; background: var(--panel); }
+  nav h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 4px 6px 10px; }
+  nav ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+  nav button { width: 100%; text-align: left; border: 1px solid transparent; background: none; color: inherit; padding: 8px 10px; border-radius: 8px; cursor: pointer; font: inherit; }
+  nav button:hover { background: var(--bg); }
+  nav button[aria-current="page"] { border-color: var(--accent); background: var(--bg); }
+  nav .l { display: block; font-weight: 600; overflow-wrap: anywhere; }
+  nav .s { display: block; font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+  .hint { font-size: 12.5px; color: var(--muted); margin: 14px 6px; }
+  main { padding: 20px 28px 48px; max-width: 920px; width: 100%; }
+  header.dest { border-bottom: 1px solid var(--line); padding-bottom: 12px; margin-bottom: 16px; }
+  .agent { font-size: 12.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  h1 { font-size: 24px; margin: 2px 0; overflow-wrap: anywhere; }
+  .meta { color: var(--muted); font-size: 13.5px; display: flex; gap: 14px; flex-wrap: wrap; }
+  h2 { font-size: 16px; margin: 22px 0 8px; }
+  .banner { border: 1px solid var(--line); border-left: 4px solid var(--warn); background: var(--panel); padding: 10px 12px; border-radius: 6px; margin: 12px 0; }
+  .banner.bad { border-left-color: var(--bad); }
+  .drop { border: 2px dashed var(--line); border-radius: 12px; padding: 18px; background: var(--panel); }
+  .drop.over { border-color: var(--accent); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+  .row input[type=url] { flex: 1 1 240px; }
+  input, textarea { font: inherit; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px; }
+  textarea { width: 100%; min-height: 70px; resize: vertical; }
+  label { font-weight: 600; display: block; margin: 12px 0 4px; }
+  .row label { margin: 0; }
+  button.b { font: inherit; border: 1px solid var(--line); background: var(--panel); color: var(--ink); padding: 7px 12px; border-radius: 6px; cursor: pointer; }
+  button.b:hover:not(:disabled) { border-color: var(--muted); }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; padding: 10px 16px; }
+  button:disabled { opacity: .55; cursor: not-allowed; }
+  button.link { background: none; border: none; color: var(--accent); padding: 0; cursor: pointer; font: inherit; text-decoration: underline; }
+  ul.items { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  ul.items li { display: grid; grid-template-columns: 96px 1fr auto; gap: 12px; align-items: start; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+  .thumb { width: 96px; height: 72px; border-radius: 4px; background: var(--bg); display: grid; place-items: center; overflow: hidden; font-size: 12px; color: var(--muted); text-align: center; }
+  .thumb img { max-width: 100%; max-height: 100%; }
+  .name { font-weight: 600; overflow-wrap: anywhere; }
+  .sub { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+  pre.preview { margin: 6px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12.5px; max-height: 90px; overflow: hidden; background: var(--bg); padding: 6px; border-radius: 4px; }
+  .warn { color: var(--warn); } .bad { color: var(--bad); } .ok { color: var(--ok); }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+  #msg { min-height: 1.5em; margin-top: 10px; }
+  ol.history { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  ol.history > li { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  .state { font-weight: 700; }
+  details.log ul { margin: 6px 0 0; padding-left: 18px; font-size: 12.5px; color: var(--muted); }
+  .fine { font-size: 12.5px; color: var(--muted); margin-top: 28px; }
+  @media (max-width: 720px) {
+    .app { grid-template-columns: 1fr; }
+    nav.side { border-right: 0; border-bottom: 1px solid var(--line); }
+    main { padding: 16px; }
+    ul.items li { grid-template-columns: 64px 1fr; } ul.items li > :last-child { grid-column: 1 / -1; }
+    .thumb { width: 64px; height: 52px; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the drop area</a>
+<div class="app">
+  <nav class="side" aria-labelledby="dests-h">
+    <h2 id="dests-h">Chats</h2>
+    <ul id="dests"></ul>
+    <p class="hint">Connect another chat by asking it to open Context Drop.</p>
+  </nav>
+  <main id="main" tabindex="-1">
+    <div id="fatal" class="banner bad" hidden></div>
+    <div id="view" hidden>
+      <header class="dest">
+        <div class="agent" id="agent"></div>
+        <div class="title-row">
+          <h1 id="label"></h1>
+          <button class="link" id="rename" type="button">Rename</button>
+        </div>
+        <form id="renameform" class="row" hidden>
+          <label for="renamein">Local label</label>
+          <input id="renamein" maxlength="80" required>
+          <button class="b" type="submit">Save</button>
+          <button class="b" type="button" id="renamecancel">Cancel</button>
+        </form>
+        <div class="meta"><span id="project"></span><span id="conn"></span></div>
+      </header>
+      <div id="connbanner" class="banner" hidden></div>
+
+      <section class="drop" id="drop" aria-labelledby="drop-h">
+        <h2 id="drop-h" style="margin-top:0">Add context for <span id="drop-label"></span></h2>
+        <p class="sub">Drop files here, or paste screenshots, text, or links anywhere on this page (Ctrl+V / ⌘V). Nothing is sent until you press Send.</p>
+        <div class="row">
+          <button class="b" id="pick" type="button">Choose files…</button>
+          <input type="file" id="file" multiple hidden>
+        </div>
+        <form id="linkform" class="row">
+          <label for="link">Link</label>
+          <input id="link" type="url" placeholder="https://…" autocomplete="off">
+          <button class="b" type="submit">Add link</button>
+        </form>
+        <details>
+          <summary>Add text</summary>
+          <label for="textin">Text to stage</label>
+          <textarea id="textin"></textarea>
+          <div class="row"><button class="b" id="addtext" type="button">Stage text</button></div>
+        </details>
+      </section>
+
+      <section aria-labelledby="staged-h">
+        <h2 id="staged-h">Staged items <span id="count" class="sub"></span></h2>
+        <ul class="items" id="items"></ul>
+        <p class="sub">Images (PNG, JPEG, WebP), text and code files, text-based PDFs, and links. Up to 10 items, 25 MiB per file, 100 MiB total.</p>
+      </section>
+
+      <label for="note">Instruction for the agent <span class="sub">(optional)</span></label>
+      <textarea id="note" placeholder="What should the agent do with this?"></textarea>
+
+      <div class="actions">
+        <button class="b primary" id="send" type="button">Send</button>
+        <button class="b" id="clear" type="button">Clear draft</button>
+      </div>
+      <div id="msg" role="status" aria-live="polite"></div>
+
+      <section aria-labelledby="hist-h">
+        <h2 id="hist-h">Sent to this chat</h2>
+        <ol class="history" id="history"></ol>
+      </section>
+
+      <details style="margin-top:24px">
+        <summary>Disconnect this chat</summary>
+        <p class="sub">Stops Context Drop from delivering here and cancels anything still queued. Anything the agent already accepted stays in the chat.</p>
+        <button class="b" id="disconnect" type="button">Disconnect</button>
+      </details>
+
+      <p class="fine">Drafts and attachments stay on this computer; Context Drop has no cloud service. Once sent, the agent may share content with its model provider as it normally does. Drafts and undelivered items are kept for 7 days and delivered attachments for 24 hours; after that the agent can no longer retrieve them. Deleting local copies does not remove anything from the chat transcript.</p>
+    </div>
+  </main>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>
