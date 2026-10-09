@@ -8,12 +8,12 @@ One plugin for **Claude Code** and **Codex** that opens a local browser page bou
 
 ## Install
 
-From a clone of this repository:
+Both hosts install straight from GitHub. To work on a local clone instead, use its path in place of `gordon2tone/context-drop`.
 
 **Claude Code**
 
 ```bash
-claude plugin marketplace add /path/to/context-drop
+claude plugin marketplace add gordon2tone/context-drop
 claude plugin install context-drop@context-drop
 # Start sessions with the channel enabled so sends are pushed into the chat:
 claude --dangerously-load-development-channels plugin:context-drop@context-drop
@@ -24,7 +24,7 @@ Channels are a Claude Code research preview. Until Context Drop is on an approve
 **Codex**
 
 ```bash
-codex plugin marketplace add /path/to/context-drop
+codex plugin marketplace add gordon2tone/context-drop
 codex plugin add context-drop@context-drop
 ```
 
