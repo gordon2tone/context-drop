@@ -1,6 +1,6 @@
 # Context Drop
 
-One plugin for **Claude Code** and **Codex** that opens a local browser page bound to the chat you opened it from. Drop or paste screenshots, selected text, links, text/code files, and text-based PDFs, then press **Send to <chat>** to deliver them into that same chat.
+One plugin for **Claude Code** and **Codex CLI** that opens a local browser page bound to the chat you opened it from. Drop or paste screenshots, selected text, links, text/code files, and text-based PDFs, then press **Send to <chat>** to deliver them into that same chat.
 
 - No account, no API key, no cloud service. Everything stays in `~/.context-drop` until the agent reads it.
 - One shared local service; each chat gets its own destination, draft, and delivery history.
