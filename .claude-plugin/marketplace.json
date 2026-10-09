@@ -1,6 +1,6 @@
 {
-  "name": "context-drop-local",
-  "description": "Local marketplace for developing Context Drop.",
+  "name": "context-drop",
+  "description": "Marketplace for the Context Drop plugin.",
   "owner": {
     "name": "gordon2tone"
   },

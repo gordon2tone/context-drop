@@ -1,5 +1,5 @@
 {
-  "name": "context-drop-local",
+  "name": "context-drop",
   "plugins": [{
     "name": "context-drop",
     "source": { "source": "local", "path": "./" },

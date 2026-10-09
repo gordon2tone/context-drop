@@ -14,9 +14,9 @@ From a clone of this repository:
 
 ```bash
 claude plugin marketplace add /path/to/context-drop
-claude plugin install context-drop@context-drop-local
+claude plugin install context-drop@context-drop
 # Start sessions with the channel enabled so sends are pushed into the chat:
-claude --dangerously-load-development-channels plugin:context-drop@context-drop-local
+claude --dangerously-load-development-channels plugin:context-drop@context-drop
 ```
 
 Channels are a Claude Code research preview. Until Context Drop is on an approved channel allowlist (or your org's `allowedChannelPlugins`), the development flag is required. Without it, the tools still work, but sends wait until you ask the agent to check (`list_drops`).
@@ -25,7 +25,7 @@ Channels are a Claude Code research preview. Until Context Drop is on an approve
 
 ```bash
 codex plugin marketplace add /path/to/context-drop
-codex plugin add context-drop@context-drop-local
+codex plugin add context-drop@context-drop
 ```
 
 Codex asks for approval the first time the agent calls a Context Drop tool. Choose "always allow" for this server if you don't want to be asked each time.
