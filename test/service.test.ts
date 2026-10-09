@@ -168,3 +168,13 @@ test('oversize upload is rejected without disturbing staged items; unsafe file p
   assert.match(f.headers.get('content-security-policy')!, /sandbox/)
   assert.equal(await f.text(), '<script>alert(1)</script>')
 })
+
+test('exits after idleMs with no requests, polls, or deliveries', async () => {
+  let down = false
+  const { call } = await boot({ idleMs: 200, onShutdown: () => { down = true } })
+  await new Promise(r => setTimeout(r, 120))
+  await call('GET', '/api/destinations')
+  await new Promise(r => setTimeout(r, 120))
+  assert.equal(down, false, 'a request resets the idle clock')
+  await until(() => down)
+})

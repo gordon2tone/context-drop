@@ -23,7 +23,7 @@ export const STATE_TEXT: Record<State, string> = {
 }
 
 export type Keys = { uiKey: string; adapterKey: string; port: number }
-export type ServiceOpts = { dir: string; port?: number; codexBin?: string; tickMs?: number; pollMs?: number; staleMs?: number; codexTimeoutMs?: number; onShutdown?: () => void }
+export type ServiceOpts = { dir: string; port?: number; codexBin?: string; tickMs?: number; pollMs?: number; staleMs?: number; codexTimeoutMs?: number; idleMs?: number; onShutdown?: () => void }
 type Conn = { id: string; agent: Agent; conversationId: string; lastSeen: number; polling: number }
 
 export function loadKeys(dir: string): Keys {
@@ -49,6 +49,8 @@ export async function startService(opts: ServiceOpts) {
   const conns = new Map<string, Conn>()
   const inflight = new Map<string, string>() // submission id -> claude connection id
   const codexBusy = new Set<string>()
+  const idleMs = opts.idleMs ?? 30 * 60_000
+  let lastActive = Date.now()
   const tmpDir = path.join(dir, 'tmp')
   fs.mkdirSync(tmpDir, { recursive: true })
 
@@ -123,6 +125,9 @@ export async function startService(opts: ServiceOpts) {
       if (!c || (c.polling === 0 && t - c.lastSeen > staleMs)) finish(subId, 'uncertain', 'Claude Code adapter disconnected before confirming the push')
     }
     for (const [id, c] of conns) if (c.polling === 0 && t - c.lastSeen > staleMs * 3) conns.delete(id)
+    // Exit once nothing needs us; the next adapter call starts a fresh service.
+    if (inflight.size || codexBusy.size || [...conns.values()].some(c => c.polling > 0)) lastActive = t
+    else if (t - lastActive > idleMs) { log('idle-exit'); close(); opts.onShutdown?.() }
   }
   const ticker = setInterval(tick, tickMs)
   const sweeper = setInterval(() => store.sweep(), 3600_000)
@@ -309,6 +314,7 @@ export async function startService(opts: ServiceOpts) {
 
   const server = http.createServer(async (req, res) => {
     const url = new URL(req.url ?? '/', 'http://x')
+    lastActive = Date.now()
     try {
       // DNS-rebinding and cross-site defenses; localhost alone is not authorization.
       if (!allowedHosts().includes(String(req.headers.host))) throw new UserError(403, 'Bad host')

@@ -5,7 +5,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import readline from 'node:readline'
 import crypto from 'node:crypto'
-import { ensureService, api, openBrowser, type Svc } from './client.ts'
+import { ensureService, api, openBrowser } from './client.ts'
 import { VERSION, defaultHome } from './service.ts'
 import type { Item } from './store.ts'
 
@@ -16,8 +16,8 @@ const TEXT_INLINE_MAX = 200_000
 // Claude Code spawns one stdio server per session, so the session id in our env identifies the chat.
 // Codex may share one MCP process across threads, so Codex calls must name their thread explicitly.
 let claudeConversation = process.env.CLAUDE_CODE_SESSION_ID || `proc-${crypto.randomUUID()}`
-let svc: Svc | undefined
-const service = async () => (svc ??= await ensureService())
+// Re-check every call: the service exits when idle and must be restarted on demand.
+const service = () => ensureService()
 
 const write = (msg: unknown) => new Promise<void>((res, rej) => process.stdout.write(JSON.stringify(msg) + '\n', e => (e ? rej(e) : res())))
 
@@ -137,7 +137,6 @@ function startPush() {
           }
         }
       } catch (e) {
-        svc = undefined
         process.stderr.write(`context-drop: push loop error: ${(e as Error).message}\n`)
         await new Promise(r => setTimeout(r, 2000))
       }
