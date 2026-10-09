@@ -1,7 +1,7 @@
 {
   "name": "context-drop",
   "displayName": "Context Drop",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Open a local browser page from a chat and send screenshots, text, links, and files into that same chat.",
   "author": { "name": "gordon2tone" },
   "license": "MIT",

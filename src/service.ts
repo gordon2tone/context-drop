@@ -49,7 +49,7 @@ export async function startService(opts: ServiceOpts) {
   const conns = new Map<string, Conn>()
   const inflight = new Map<string, string>() // submission id -> claude connection id
   const codexBusy = new Set<string>()
-  const idleMs = opts.idleMs ?? 30 * 60_000
+  const idleMs = opts.idleMs ?? 15 * 60_000
   let lastActive = Date.now()
   const tmpDir = path.join(dir, 'tmp')
   fs.mkdirSync(tmpDir, { recursive: true })

@@ -1,6 +1,6 @@
 {
   "name": "context-drop",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Drop screenshots, text, links, and files from a local browser page into a specific Codex or Claude Code chat.",
   "type": "module",
   "private": true,
